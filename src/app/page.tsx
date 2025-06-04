@@ -1,101 +1,156 @@
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
+type ReactionType = 'tired' | 'nice' | 'common';
+
+interface Post {
+  id: number;
+  name: string;
+  childAge: string;
+  content: string;
+  emotion: string;
+  reactions: Record<ReactionType, number>;
+}
 
 export default function Home() {
-  return (
-    <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
-      <main className="row-start-2 flex flex-col items-center gap-8 sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-center font-[family-name:var(--font-geist-mono)] text-sm sm:text-left">
-          <li className="mb-2">
-            Get started by editing{' '}
-            <code className="rounded bg-black/[.05] px-1 py-0.5 font-semibold dark:bg-white/[.06]">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [name, setName] = useState('');
+  const [childAge, setChildAge] = useState('');
+  const [content, setContent] = useState('');
+  const [emotion, setEmotion] = useState('嬉しい');
+  const [sort, setSort] = useState<'latest' | 'popular'>('latest');
 
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <a
-            className="bg-foreground text-background flex h-10 items-center justify-center gap-2 rounded-full border border-solid border-transparent px-4 text-sm transition-colors hover:bg-[#383838] sm:h-12 sm:px-5 sm:text-base dark:hover:bg-[#ccc]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="flex h-10 items-center justify-center rounded-full border border-solid border-black/[.08] px-4 text-sm transition-colors hover:border-transparent hover:bg-[#f2f2f2] sm:h-12 sm:min-w-44 sm:px-5 sm:text-base dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  useEffect(() => {
+    const stored = localStorage.getItem('father_posts');
+    if (stored) {
+      setPosts(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('father_posts', JSON.stringify(posts));
+  }, [posts]);
+
+  const addPost = () => {
+    if (!content.trim() || !name.trim()) return;
+    const newPost: Post = {
+      id: Date.now(),
+      name,
+      childAge,
+      content,
+      emotion,
+      reactions: { tired: 0, nice: 0, common: 0 },
+    };
+    setPosts([newPost, ...posts]);
+    setContent('');
+  };
+
+  const addReaction = (id: number, type: ReactionType) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, reactions: { ...p.reactions, [type]: p.reactions[type] + 1 } }
+          : p,
+      ),
+    );
+  };
+
+  const sortedPosts = [...posts].sort((a, b) => {
+    if (sort === 'latest') return b.id - a.id;
+    const aTotal = Object.values(a.reactions).reduce((s, v) => s + v, 0);
+    const bTotal = Object.values(b.reactions).reduce((s, v) => s + v, 0);
+    return bTotal - aTotal;
+  });
+
+  return (
+    <div className="mx-auto max-w-md space-y-6 p-4">
+      <h1 className="text-xl font-bold">育児パパのつぶやき</h1>
+      <div className="space-y-2 rounded border p-4">
+        <input
+          className="w-full rounded border p-2"
+          placeholder="ニックネーム"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          className="w-full rounded border p-2"
+          placeholder="子どもの年齢"
+          value={childAge}
+          onChange={(e) => setChildAge(e.target.value)}
+        />
+        <textarea
+          className="w-full rounded border p-2"
+          rows={3}
+          placeholder="今日の出来事"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+        <select
+          className="w-full rounded border p-2"
+          value={emotion}
+          onChange={(e) => setEmotion(e.target.value)}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <option>嬉しい</option>
+          <option>疲れた</option>
+          <option>達成感</option>
+        </select>
+        <button
+          className="w-full rounded bg-blue-500 py-2 font-semibold text-white"
+          onClick={addPost}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          投稿
+        </button>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <label className="flex items-center gap-1">
+          <input
+            type="radio"
+            checked={sort === 'latest'}
+            onChange={() => setSort('latest')}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          最新順
+        </label>
+        <label className="flex items-center gap-1">
+          <input
+            type="radio"
+            checked={sort === 'popular'}
+            onChange={() => setSort('popular')}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          リアクション数順
+        </label>
+      </div>
+
+      <ul className="space-y-4">
+        {sortedPosts.map((post) => (
+          <li key={post.id} className="rounded border p-4 shadow">
+            <p className="text-sm text-gray-500">
+              👨‍🦰 {post.name}
+              {post.childAge && `（子${post.childAge}）`} {post.emotion && `#${post.emotion}`}
+            </p>
+            <p className="my-2 whitespace-pre-wrap">{post.content}</p>
+            <div className="flex gap-4 text-sm">
+              <button
+                className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 hover:bg-gray-200"
+                onClick={() => addReaction(post.id, 'tired')}
+              >
+                お疲れさま ×{post.reactions.tired}
+              </button>
+              <button
+                className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 hover:bg-gray-200"
+                onClick={() => addReaction(post.id, 'nice')}
+              >
+                ナイス！ ×{post.reactions.nice}
+              </button>
+              <button
+                className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 hover:bg-gray-200"
+                onClick={() => addReaction(post.id, 'common')}
+              >
+                あるある ×{post.reactions.common}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
