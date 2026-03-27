@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@next/bundle-analyzer':
-        specifier: ^16.2.1
-        version: 16.2.1
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -27,6 +24,9 @@ importers:
         specifier: ^3.4.0
         version: 3.5.0
     devDependencies:
+      '@next/bundle-analyzer':
+        specifier: ^16.2.1
+        version: 16.2.1
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.2.2
