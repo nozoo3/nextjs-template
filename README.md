@@ -26,24 +26,24 @@ cd my-app
 nvm use
 
 # 3. Install dependencies
-npm install
+pnpm install
 
 # 4. Start the dev server
-npm run dev
+pnpm dev
 ```
 
 Open http://localhost:3000.
 
 ## Scripts
 
-| Command          | Description                  |
-| ---------------- | ---------------------------- |
-| `npm run dev`    | Start dev server (Turbopack) |
-| `npm run build`  | Production build             |
-| `npm start`      | Start production server      |
-| `npm run lint`   | Run ESLint                   |
-| `npm run format` | Format code with Prettier    |
-| `npm test`       | Run tests (Vitest)           |
+| Command       | Description                  |
+| ------------- | ---------------------------- |
+| `pnpm dev`    | Start dev server (Turbopack) |
+| `pnpm build`  | Production build             |
+| `pnpm start`  | Start production server      |
+| `pnpm lint`   | Run ESLint                   |
+| `pnpm format` | Format code with Prettier    |
+| `pnpm test`   | Run tests (Vitest)           |
 
 ## Project Structure
 
@@ -92,7 +92,7 @@ Includes `robots.ts` and `sitemap.ts`. Set the `NEXT_PUBLIC_BASE_URL` environmen
 ### Bundle Analyzer
 
 ```bash
-ANALYZE=true npm run build
+ANALYZE=true pnpm build
 ```
 
 ## Customization
